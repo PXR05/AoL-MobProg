@@ -21,6 +21,7 @@ import com.pxr.golf.R;
 import com.pxr.golf.adapters.CourseAdapter;
 import com.pxr.golf.adapters.PostAdapter;
 import com.pxr.golf.databinding.FragmentHomeBinding;
+import com.pxr.golf.db.DBManager;
 import com.pxr.golf.models.Course;
 import com.pxr.golf.models.Post;
 import com.pxr.golf.models.User;
@@ -47,6 +48,8 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        DBManager db = new DBManager(root.getContext());
+
         setGreetings();
         User user = Auth.loadUser(root.getContext());
         TextView nameText = binding.homeNameText;
@@ -54,10 +57,8 @@ public class HomeFragment extends Fragment {
         ImageView profileImage = binding.homeProfileImage;
         profileImage.setImageResource(R.drawable.baseline_person_24);
 
-        homeViewModel.getCourses(user.getId()).observe(getViewLifecycleOwner(), courses -> {
-            this.courses = courses;
-            displayCourses(courses);
-        });
+        courses = db.getCourses(user.getId());
+        displayCourses(courses);
 
         homeViewModel.getPosts().observe(getViewLifecycleOwner(), this::displayPosts);
 

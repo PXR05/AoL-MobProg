@@ -26,7 +26,7 @@ public class DBManager {
 
     public DBManager(Context ctx) {
         this.ctx = ctx;
-        this.helper = new DBHelper(ctx); // Initialize helper in constructor
+        this.helper = new DBHelper(ctx);
     }
 
     public void open() {

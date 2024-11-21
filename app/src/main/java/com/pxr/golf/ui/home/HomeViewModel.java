@@ -3,12 +3,10 @@ package com.pxr.golf.ui.home;
 import android.app.Application;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.pxr.golf.db.DBManager;
-import com.pxr.golf.models.Course;
 import com.pxr.golf.models.Post;
 
 import org.json.JSONArray;
@@ -27,40 +25,14 @@ import java.util.concurrent.Executors;
 public class HomeViewModel extends ViewModel {
     private static final String TAG = "HomeViewModel";
     private final DBManager db;
-    private final MutableLiveData<List<Course>> courses;
     private final MutableLiveData<List<Post>> posts;
-    private final ExecutorService courseExecutor;
     private final ExecutorService postExecutor;
-    private boolean isLoadingCourses;
     private boolean isLoadingPosts;
 
     public HomeViewModel(Application app) {
         db = new DBManager(app);
-        courses = new MutableLiveData<>();
         posts = new MutableLiveData<>();
-        courseExecutor = Executors.newSingleThreadExecutor();
         postExecutor = Executors.newSingleThreadExecutor();
-    }
-
-    public MutableLiveData<List<Course>> getCourses(@Nullable String uid) {
-        loadCourses(uid);
-        return courses;
-    }
-
-    private void loadCourses(@Nullable String uid) {
-        if (isLoadingCourses) return;
-        isLoadingCourses = true;
-        courseExecutor.execute(() -> {
-            try {
-                Log.d(TAG, "loadCourses: loading courses");
-                List<Course> fetchedCourses = db.getCourses(uid);
-                Log.d(TAG, "loadCourses: " + fetchedCourses);
-                courses.postValue(fetchedCourses);
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
-            isLoadingCourses = false;
-        });
     }
 
     public MutableLiveData<List<Post>> getPosts() {
@@ -120,7 +92,6 @@ public class HomeViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        courseExecutor.shutdown();
         postExecutor.shutdown();
         db.close();
     }

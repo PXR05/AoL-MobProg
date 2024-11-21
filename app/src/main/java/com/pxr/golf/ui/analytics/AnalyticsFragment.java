@@ -11,13 +11,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pxr.golf.R;
 import com.pxr.golf.adapters.CourseAdapter;
 import com.pxr.golf.databinding.FragmentAnalyticsBinding;
+import com.pxr.golf.db.DBManager;
 import com.pxr.golf.models.Course;
 import com.pxr.golf.models.User;
 import com.pxr.golf.ui.LandingActivity;
@@ -30,8 +30,7 @@ public class AnalyticsFragment extends Fragment {
     private FragmentAnalyticsBinding binding;
 
     @SuppressLint("SetTextI18n")
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAnalyticsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
@@ -49,17 +48,13 @@ public class AnalyticsFragment extends Fragment {
         ImageView profileImage = binding.analyticsProfileImage;
         profileImage.setImageResource(R.drawable.baseline_person_24);
 
-        AnalyticsViewModel analyticsViewModel = new ViewModelProvider(this,
-                new AnalyticsViewModelFactory(requireActivity().getApplication(), user.getId()))
-                .get(AnalyticsViewModel.class);
-
-        analyticsViewModel.getHistories().observe(getViewLifecycleOwner(), courses -> {
-            if (courses != null) {
-                displayCourses(courses);
-                TextView totalPlayedText = binding.analyticsTotalPlayedText;
-                totalPlayedText.setText("TOTAL COURSE PLAYED: " + courses.size());
-            }
-        });
+        DBManager db = new DBManager(root.getContext());
+        List<Course> courses = db.getHistory(user.getId());
+        if (courses != null && !courses.isEmpty()) {
+            displayCourses(courses);
+            TextView totalPlayedText = binding.analyticsTotalPlayedText;
+            totalPlayedText.setText("TOTAL COURSE PLAYED: " + courses.size());
+        }
 
         return root;
     }
