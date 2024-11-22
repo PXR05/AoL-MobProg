@@ -126,9 +126,11 @@ public class CourseDetailsActivity extends AppCompatActivity {
         TextView courseScore = findViewById(R.id.courseDetailsScoreText);
         courseScore.setText(String.valueOf(score));
 
+        int handicap = 72 - score;
         TextView courseHandicap = findViewById(R.id.courseDetailsHandicapText);
-        courseHandicap.setText("0");
+        courseHandicap.setText(String.valueOf(handicap));
         // TODO: idk cara itungnya
+
 
         Button courseSave = findViewById(R.id.courseDetailsSaveBtn);
         courseSave.setOnClickListener(v -> handleSave(course.getId()));
