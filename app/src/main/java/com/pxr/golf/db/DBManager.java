@@ -214,10 +214,8 @@ public class DBManager {
         }
         c.moveToFirst();
 
-        List<Hole> holes = getHoles(cid, uid);
-        if (holes == null || holes.isEmpty()) {
-            holes = Generate.holes(c.getInt(3), 72);
-        }
+        List<Hole> holes = Generate.holes(c.getInt(3), 72);
+
         Course course = new Course(
                 c.getString(0),
                 c.getString(1),
