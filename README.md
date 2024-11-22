@@ -12,7 +12,17 @@ Connects with the SenseGolf Instagram Catalog, allowing users to explore and bro
 Designed with an emphasis on usability and aesthetic appeal to ensure a smooth and engaging user experience.
 
 **Tech Stack**
-Language: Java
-Development Environment: Android Studio
-Architecture: Modular with clear separation of UI, database, and utility components
-Integration: Instagram API for product catalog browsing
+- Language: Java
+- Development Environment: Android Studio
+- Architecture: Modular with clear separation of UI, database, and utility components
+- Integration: Instagram API for product catalog browsing
+
+**Installation**
+1. Clone this repository:
+git clone https://github.com/PXR05/AoL-MobProg.git
+
+2. Open the project in Android Studio.
+3. Build and run the app on an Android emulator or physical device.
+
+**Contact**
+- For inquiries, reach out via Instagram or email at sensegolf88@gmail.com.
