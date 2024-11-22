@@ -30,16 +30,12 @@ import com.pxr.golf.utils.Generate;
 import com.pxr.golf.utils.Setup;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class CourseDetailsActivity extends AppCompatActivity {
     private static final String TAG = "CourseDetailsActivity";
     private User user;
     private Course course;
     private DBManager db;
-    private ExecutorService executor;
-    private boolean isLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +46,9 @@ public class CourseDetailsActivity extends AppCompatActivity {
         Setup.all(this, root);
 
         db = new DBManager(this);
-        executor = Executors.newSingleThreadExecutor();
 
         ImageView backBtn = findViewById(R.id.courseDetailBackBtn);
         backBtn.setOnClickListener(v -> {
-            if (isLoading) {
-                isLoading = false;
-                executor.shutdown();
-            }
             finish();
         });
 
@@ -120,8 +111,8 @@ public class CourseDetailsActivity extends AppCompatActivity {
     }
 
     private void handleSave(String cid) {
-        if (isLoading || course == null) {
-            Log.d(TAG, "handleSave: is loading");
+        if (course == null) {
+            Log.d(TAG, "handleSave: course null");
             return;
         }
         RecyclerView courseHoles = findViewById(R.id.courseDetailsHolesRV);
@@ -157,9 +148,5 @@ public class CourseDetailsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (!executor.isShutdown() || !executor.isTerminated()) {
-            executor.shutdown();
-        }
-        course = null;
     }
 }
