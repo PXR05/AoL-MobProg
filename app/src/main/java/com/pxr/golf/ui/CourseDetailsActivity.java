@@ -36,6 +36,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
     private User user;
     private Course course;
     private DBManager db;
+    private boolean isNew;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +69,10 @@ public class CourseDetailsActivity extends AppCompatActivity {
         user = Auth.loadUser(root.getContext());
 
         if (hid != null && !hid.isBlank()) {
+            isNew = false;
             course = new Course(id, name, image, hid, db.getHoles(hid));
         } else {
+            isNew = true;
             course = new Course(id, name, image, Generate.holes(holeCount, 72));
         }
         displayCourse(course);
@@ -124,8 +127,9 @@ public class CourseDetailsActivity extends AppCompatActivity {
         List<Hole> holes = adapter.getHoles();
         Log.d(TAG, "handleSave: saving holes " + holes + " with hid " + course.getHid());
         String hid = db.saveHistory(cid, user.getId(), course.getHid());
-        db.saveHoles(holes, hid);
+        db.saveHoles(holes, hid, isNew);
         course.setHid(hid);
+        isNew = false;
     }
 
     @Override

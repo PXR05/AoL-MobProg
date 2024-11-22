@@ -125,29 +125,40 @@ public class DBManager {
         return holes;
     }
 
-    public void saveHoles(List<Hole> holes, String hid) {
+    public void saveHoles(List<Hole> holes, String hid, boolean isNew) {
         Log.d(TAG, "saveHoles: saving holes for hid: " + hid);
+
         open();
-        String sql = "INSERT OR REPLACE INTO " + DBHelper.TABLE_HOLES + "("
-                + DBHelper.HOLE_ID + ", "
+        String sql = "INSERT INTO " + DBHelper.TABLE_HOLES + "("
                 + DBHelper.HOLE_NUMBER + ", "
                 + DBHelper.HOLE_PAR + ", "
                 + DBHelper.HOLE_SCORE + ", "
                 + DBHelper.HOLE_NOTE + ", "
                 + DBHelper.HOLE_HISTORY_ID + ") "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?)";
+        if (!isNew) {
+            sql = "UPDATE " + DBHelper.TABLE_HOLES + " SET "
+                    + DBHelper.HOLE_NUMBER + " = ?, "
+                    + DBHelper.HOLE_PAR + " = ?, "
+                    + DBHelper.HOLE_SCORE + " = ?, "
+                    + DBHelper.HOLE_NOTE + " = ? "
+                    + "WHERE " + DBHelper.HOLE_ID + " = ?";
+        }
 
         SQLiteStatement stmt = db.compileStatement(sql);
 
         int i = 0;
         for (Hole hole : holes) {
             Log.d(TAG, "saveHoles: hole " + i++);
-            stmt.bindString(1, hole.getId());
-            stmt.bindLong(2, hole.getNumber());
-            stmt.bindLong(3, hole.getPar());
-            stmt.bindLong(4, hole.getScore());
-            stmt.bindString(5, hole.getNote());
-            stmt.bindString(6, hid);
+            stmt.bindLong(1, hole.getNumber());
+            stmt.bindLong(2, hole.getPar());
+            stmt.bindLong(3, hole.getScore());
+            stmt.bindString(4, hole.getNote());
+            if (isNew) {
+                stmt.bindString(5, hid);
+            } else {
+                stmt.bindString(5, hole.getId());
+            }
             stmt.execute();
             stmt.clearBindings();
         }
