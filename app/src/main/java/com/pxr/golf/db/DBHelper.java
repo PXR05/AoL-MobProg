@@ -21,21 +21,20 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COURSE_IMAGE = "image";
     public static final String COURSE_HOLE_COUNT = "hole_count";
     public static final String COURSE_USER_ID = "user_id";
+    public static final String TABLE_HISTORY = "history";
+    public static final String HISTORY_ID = "id";
+    public static final String HISTORY_COURSE_ID = "course_id";
+    public static final String HISTORY_USER_ID = "user_id";
+    public static final String HISTORY_DATE = "date";
     public static final String TABLE_HOLES = "holes";
     public static final String HOLE_ID = "id";
     public static final String HOLE_NUMBER = "number";
     public static final String HOLE_PAR = "par";
     public static final String HOLE_SCORE = "score";
     public static final String HOLE_NOTE = "note";
-    public static final String HOLE_COURSE_ID = "course_id";
-    public static final String HOLE_USER_ID = "user_id";
-    public static final String TABLE_HISTORY = "history";
-    public static final String HISTORY_ID = "id";
-    public static final String HISTORY_COURSE_ID = "course_id";
-    public static final String HISTORY_USER_ID = "user_id";
-    public static final String HISTORY_DATE = "date";
+    public static final String HOLE_HISTORY_ID = "history_id";
     public static final String DB_NAME = "golf.db";
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 2;
     private static final String TAG = "DBHelper";
 
     public DBHelper(@Nullable Context context) {
@@ -48,7 +47,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.beginTransaction();
 
             db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_USERS + "(" +
-                    USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    USER_ID + " INTEGER PRIMARY KEY, " +
                     USER_NAME + " TEXT, " +
                     USER_EMAIL + " TEXT, " +
                     USER_PASSWORD + " TEXT)");
@@ -87,14 +86,12 @@ public class DBHelper extends SQLiteOpenHelper {
                     HOLE_PAR + " INTEGER, " +
                     HOLE_SCORE + " INTEGER, " +
                     HOLE_NOTE + " TEXT, " +
-                    HOLE_COURSE_ID + " TEXT, " +
-                    HOLE_USER_ID + " TEXT, " +
-                    "FOREIGN KEY(" + HOLE_COURSE_ID + ") REFERENCES " + TABLE_COURSE + "(" + COURSE_ID + "), " +
-                    "FOREIGN KEY(" + HOLE_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + USER_ID + "));");
+                    HOLE_HISTORY_ID + " TEXT, " +
+                    "FOREIGN KEY(" + HOLE_HISTORY_ID + ") REFERENCES " + TABLE_HISTORY + "(" + HISTORY_ID + "));");
 
             db.execSQL("CREATE INDEX IF NOT EXISTS " +
-                    HOLE_COURSE_ID + "_" + HOLE_USER_ID + "_index " +
-                    "ON " + TABLE_HOLES + "(" + HOLE_COURSE_ID + ", " + HOLE_USER_ID + ");");
+                    HOLE_HISTORY_ID + "_index " +
+                    "ON " + TABLE_HOLES + "(" + HOLE_HISTORY_ID + ");");
 
             seedUsers(db);
             seedCourses(db);
@@ -135,10 +132,10 @@ public class DBHelper extends SQLiteOpenHelper {
             for (int i = 0; i < 3; i++) {
                 db.execSQL("INSERT INTO " + TABLE_COURSE +
                         "(" + COURSE_ID + ", " + COURSE_NAME + ", " + COURSE_IMAGE + ", " + COURSE_HOLE_COUNT + ") " +
-                        "VALUES (" + i + ", 'Senayan Golf Course', " + R.drawable.course1 + ", 18)");
+                        "VALUES (" + i + ", '( " + i + " ) Senayan Golf Course', " + R.drawable.course1 + ", 18)");
                 db.execSQL("INSERT INTO " + TABLE_COURSE +
                         "(" + COURSE_ID + ", " + COURSE_NAME + ", " + COURSE_IMAGE + ", " + COURSE_HOLE_COUNT + ") " +
-                        "VALUES (" + (i + 3) + ", 'Kedaton Golf Course', " + R.drawable.course2 + " , 18)");
+                        "VALUES (" + (i + 3) + ", '( " + i + " ) Kedaton Golf Course', " + R.drawable.course2 + " , 18)");
             }
         } catch (Exception e) {
             Log.e(TAG, "seedCourses: Error seeding courses", e);

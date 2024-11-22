@@ -49,7 +49,7 @@ public class AnalyticsFragment extends Fragment {
         profileImage.setImageResource(R.drawable.baseline_person_24);
 
         DBManager db = new DBManager(root.getContext());
-        List<Course> courses = db.getHistory(user.getId());
+        List<Course> courses = db.getHistories(user.getId());
         if (courses != null && !courses.isEmpty()) {
             displayCourses(courses);
             TextView totalPlayedText = binding.analyticsTotalPlayedText;

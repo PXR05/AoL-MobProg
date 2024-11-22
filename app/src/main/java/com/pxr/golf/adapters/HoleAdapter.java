@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pxr.golf.R;
@@ -17,10 +18,12 @@ import com.pxr.golf.models.Hole;
 import java.util.List;
 
 public class HoleAdapter extends RecyclerView.Adapter<HoleAdapter.HoleViewHolder> {
+    private final AppCompatActivity app;
     private final List<Hole> holes;
 
-    public HoleAdapter(List<Hole> holes) {
+    public HoleAdapter(List<Hole> holes, AppCompatActivity app) {
         this.holes = holes;
+        this.app = app;
     }
 
     @NonNull
@@ -45,6 +48,7 @@ public class HoleAdapter extends RecyclerView.Adapter<HoleAdapter.HoleViewHolder
                 int score = Integer.parseInt(holder.holeScore.getText().toString());
                 hole.setScore(score);
                 holes.set(position, hole);
+                updateScore(holes.stream().mapToInt(Hole::getScore).sum());
             }
         });
         holder.holeNote.setOnFocusChangeListener((v, hasFocus) -> {
@@ -53,6 +57,14 @@ public class HoleAdapter extends RecyclerView.Adapter<HoleAdapter.HoleViewHolder
                 holes.set(position, hole);
             }
         });
+    }
+
+    private void updateScore(int score) {
+        TextView courseScore = app.findViewById(R.id.courseDetailsScoreText);
+        courseScore.setText(String.valueOf(score));
+        int handicap = 72 - score;
+        TextView courseHandicap = app.findViewById(R.id.courseDetailsHandicapText);
+        courseHandicap.setText(String.valueOf(handicap));
     }
 
     @Override

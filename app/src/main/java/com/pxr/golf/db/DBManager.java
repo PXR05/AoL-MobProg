@@ -1,5 +1,6 @@
 package com.pxr.golf.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,7 +12,6 @@ import androidx.annotation.Nullable;
 import com.pxr.golf.models.Course;
 import com.pxr.golf.models.Hole;
 import com.pxr.golf.models.User;
-import com.pxr.golf.utils.Generate;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -90,9 +90,9 @@ public class DBManager {
         return signIn(email, password);
     }
 
-    public List<Hole> getHoles(String cid, String uid) {
-        if (cid == null || uid == null) return null;
-        Log.d(TAG, "getHoles: querying holes with cid: " + cid + " and uid: " + uid);
+    public List<Hole> getHoles(String hid) {
+        if (hid == null) return null;
+        Log.d(TAG, "getHoles: querying holes with hid: " + hid);
 
         open();
         String sql = "SELECT " +
@@ -102,11 +102,12 @@ public class DBManager {
                 DBHelper.HOLE_SCORE + ", " +
                 DBHelper.HOLE_NOTE +
                 " FROM " + DBHelper.TABLE_HOLES +
-                " WHERE " + DBHelper.HOLE_COURSE_ID + " = ? AND " + DBHelper.HOLE_USER_ID + " = ?";
+                " WHERE " + DBHelper.HOLE_HISTORY_ID + " = ?";
 
-        Cursor c = db.rawQuery(sql, new String[]{cid, uid});
+        Cursor c = db.rawQuery(sql, new String[]{hid});
         if (c.getCount() == 0) {
             Log.d(TAG, "getHoles: no result");
+            c.close();
             return null;
         }
         c.moveToFirst();
@@ -124,48 +125,40 @@ public class DBManager {
         return holes;
     }
 
-    public void saveHoles(List<Hole> holes, String cid, String uid) {
-        Log.d(TAG, "saveHoles: saving holes for cid: " + cid + " and uid: " + uid);
+    public void saveHoles(List<Hole> holes, String hid) {
+        Log.d(TAG, "saveHoles: saving holes for hid: " + hid);
         open();
-        db.beginTransaction();
-        try {
-            String sql = "INSERT OR REPLACE INTO " + DBHelper.TABLE_HOLES + "("
-                    + DBHelper.HOLE_ID + ", "
-                    + DBHelper.HOLE_NUMBER + ", "
-                    + DBHelper.HOLE_PAR + ", "
-                    + DBHelper.HOLE_SCORE + ", "
-                    + DBHelper.HOLE_NOTE + ", "
-                    + DBHelper.HOLE_COURSE_ID + ", "
-                    + DBHelper.HOLE_USER_ID + ") "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT OR REPLACE INTO " + DBHelper.TABLE_HOLES + "("
+                + DBHelper.HOLE_ID + ", "
+                + DBHelper.HOLE_NUMBER + ", "
+                + DBHelper.HOLE_PAR + ", "
+                + DBHelper.HOLE_SCORE + ", "
+                + DBHelper.HOLE_NOTE + ", "
+                + DBHelper.HOLE_HISTORY_ID + ") "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
 
-            SQLiteStatement stmt = db.compileStatement(sql);
+        SQLiteStatement stmt = db.compileStatement(sql);
 
-            int i = 0;
-            for (Hole hole : holes) {
-                Log.d(TAG, "saveHoles: hole " + i++);
-                stmt.bindString(1, hole.getId());
-                stmt.bindLong(2, hole.getNumber());
-                stmt.bindLong(3, hole.getPar());
-                stmt.bindLong(4, hole.getScore());
-                stmt.bindString(5, hole.getNote());
-                stmt.bindString(6, cid);
-                stmt.bindString(7, uid);
-                stmt.execute();
-                stmt.clearBindings();
-            }
-
-            stmt.close();
-
-            Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + DBHelper.TABLE_HOLES, null);
-            c.moveToFirst();
-            Log.d(TAG, "saveHoles: " + c.getInt(0) + " holes in database");
-            c.close();
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-            close();
+        int i = 0;
+        for (Hole hole : holes) {
+            Log.d(TAG, "saveHoles: hole " + i++);
+            stmt.bindString(1, hole.getId());
+            stmt.bindLong(2, hole.getNumber());
+            stmt.bindLong(3, hole.getPar());
+            stmt.bindLong(4, hole.getScore());
+            stmt.bindString(5, hole.getNote());
+            stmt.bindString(6, hid);
+            stmt.execute();
+            stmt.clearBindings();
         }
+
+        stmt.close();
+
+        Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + DBHelper.TABLE_HOLES, null);
+        c.moveToFirst();
+        Log.d(TAG, "saveHoles: " + c.getInt(0) + " holes in database");
+        c.close();
+        close();
     }
 
     public List<Course> getCourses(@Nullable String uid) {
@@ -196,39 +189,7 @@ public class DBManager {
         return courses;
     }
 
-    public Course getCourse(String cid, String uid) {
-        open();
-        String sql = "SELECT " +
-                DBHelper.COURSE_ID + ", " +
-                DBHelper.COURSE_NAME + ", " +
-                DBHelper.COURSE_IMAGE + ", " +
-                DBHelper.COURSE_HOLE_COUNT +
-                " FROM " + DBHelper.TABLE_COURSE +
-                " WHERE " + DBHelper.COURSE_ID + " = ? OR " + DBHelper.COURSE_USER_ID + " = ?";
-
-        Cursor c = db.rawQuery(sql, new String[]{cid, uid});
-        if (c.getCount() == 0) {
-            c.close();
-            close();
-            return null;
-        }
-        c.moveToFirst();
-
-        List<Hole> holes = Generate.holes(c.getInt(3), 72);
-
-        Course course = new Course(
-                c.getString(0),
-                c.getString(1),
-                c.getInt(2),
-                holes
-        );
-
-        c.close();
-        close();
-        return course;
-    }
-
-    public List<Course> getHistory(String uid) {
+    public List<Course> getHistories(String uid) {
         if (uid == null) return null;
 
         open();
@@ -237,7 +198,8 @@ public class DBManager {
                 "c. " + DBHelper.COURSE_NAME + ", " +
                 "c. " + DBHelper.COURSE_IMAGE + ", " +
                 "c. " + DBHelper.COURSE_HOLE_COUNT + ", " +
-                "h." + DBHelper.HISTORY_DATE +
+                "h." + DBHelper.HISTORY_DATE + ", " +
+                "h." + DBHelper.HISTORY_ID +
                 " FROM " + DBHelper.TABLE_HISTORY + " h" +
                 " JOIN " + DBHelper.TABLE_COURSE + " c" +
                 " ON c." + DBHelper.COURSE_ID + " = h." + DBHelper.HISTORY_COURSE_ID +
@@ -254,10 +216,7 @@ public class DBManager {
         List<Course> courses = new ArrayList<>();
         for (int i = 0; i < c.getCount(); i++) {
             Log.d(TAG, "getHistory: history " + i);
-            List<Hole> holes = getHoles(c.getString(0), uid);
-            if (holes == null) holes = Generate.holes(c.getInt(3), 72);
-
-            Course course = new Course(c.getString(0), c.getString(1), c.getInt(2), holes);
+            Course course = new Course(c.getString(0), c.getString(1), c.getInt(2), c.getString(5));
             course.setDate(Instant.ofEpochMilli(c.getLong(4)).atZone(ZoneId.systemDefault()).toLocalDate());
             courses.add(course);
             c.moveToNext();
@@ -269,31 +228,23 @@ public class DBManager {
         return courses;
     }
 
-    public void saveHistory(String cid, String uid) {
-        if (cid == null || uid == null) return;
-        Log.d(TAG, "addHistory: saving for cid: " + cid + ", uid: " + uid);
+    public String saveHistory(String cid, String uid, @Nullable String hid) {
+        if (cid == null || uid == null) return null;
+        Log.d(TAG, "addHistory: saving for cid: " + cid + ", uid: " + uid + ", hid: " + hid);
 
         open();
-        String hid = null;
-        String checkSql = "SELECT " + DBHelper.HISTORY_ID + " FROM " + DBHelper.TABLE_HISTORY +
-                " WHERE " + DBHelper.HISTORY_COURSE_ID + " = ? AND " + DBHelper.HISTORY_USER_ID + " = ?";
-
-        Cursor c = db.rawQuery(checkSql, new String[]{cid, uid});
-        if (c.getCount() > 0) {
-            c.moveToFirst();
-            hid = c.getString(0);
-            c.close();
-        }
-        Log.d(TAG, "addHistory: hid - " + hid);
-
         if (hid == null) {
             Log.d(TAG, "addHistory: new history");
-            String sql = "INSERT INTO " + DBHelper.TABLE_HISTORY + "(" +
-                    DBHelper.HISTORY_COURSE_ID + ", " +
-                    DBHelper.HISTORY_USER_ID + ", " +
-                    DBHelper.HISTORY_DATE + ") " +
-                    "VALUES (?, ?, ?)";
-            db.execSQL(sql, new String[]{cid, uid, String.valueOf(System.currentTimeMillis())});
+            ContentValues values = new ContentValues();
+            values.put(DBHelper.HISTORY_COURSE_ID, cid);
+            values.put(DBHelper.HISTORY_USER_ID, uid);
+            values.put(DBHelper.HISTORY_DATE, String.valueOf(System.currentTimeMillis()));
+            hid = String.valueOf(db.insert(
+                    DBHelper.TABLE_HISTORY,
+                    null,
+                    values
+            ));
+            Log.d(TAG, "saveHistory: new hid: " + hid);
         } else {
             Log.d(TAG, "addHistory: existing history");
             String sql = "UPDATE " + DBHelper.TABLE_HISTORY +
@@ -301,7 +252,9 @@ public class DBManager {
                     " WHERE " + DBHelper.HISTORY_ID + " = ?";
             db.execSQL(sql, new String[]{String.valueOf(System.currentTimeMillis()), hid});
         }
-        close();
         Log.d(TAG, "addHistory: history saved");
+        close();
+
+        return hid;
     }
 }
