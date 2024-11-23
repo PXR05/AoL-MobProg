@@ -61,6 +61,12 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         holder.courseContainer.setOnClickListener(e -> {
             Intent details = new Intent(ctx, CourseDetailsActivity.class);
             details.putExtra("id", course.getId());
+            details.putExtra("name", course.getName());
+            details.putExtra("image", course.getImage());
+            details.putExtra("holeCount", course.getHoleCount());
+            if (isHistory && course.getDate() != null) {
+                details.putExtra("hid", course.getHid());
+            }
             ctx.startActivity(details);
         });
     }

@@ -13,11 +13,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,19 +27,17 @@ import com.pxr.golf.models.Course;
 import com.pxr.golf.models.Hole;
 import com.pxr.golf.models.User;
 import com.pxr.golf.utils.Auth;
+import com.pxr.golf.utils.Generate;
 import com.pxr.golf.utils.Setup;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class CourseDetailsActivity extends AppCompatActivity {
     private static final String TAG = "CourseDetailsActivity";
     private User user;
-    private MutableLiveData<Course> course;
+    private Course course;
     private DBManager db;
-    private ExecutorService executor;
-    private boolean isLoading;
+    private boolean isNew;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,52 +48,35 @@ public class CourseDetailsActivity extends AppCompatActivity {
         Setup.all(this, root);
 
         db = new DBManager(this);
-        executor = Executors.newSingleThreadExecutor();
-        course = new MutableLiveData<>();
 
         ImageView backBtn = findViewById(R.id.courseDetailBackBtn);
         backBtn.setOnClickListener(v -> {
-            if (isLoading) {
-                isLoading = false;
-                executor.shutdown();
-            }
             finish();
         });
 
         Intent intent = getIntent();
         String id = intent.getStringExtra("id");
+        String name = intent.getStringExtra("name");
+        int image = intent.getIntExtra("image", 0);
+        int holeCount = intent.getIntExtra("holeCount", 0);
+        String hid = intent.getStringExtra("hid");
+        Log.d(TAG, "onCreate: " +
+                ", id: " + id +
+                ", name: " + name +
+                ", image: " + image +
+                ", holeCount: " + holeCount +
+                ", hid: " + hid
+        );
         user = Auth.loadUser(root.getContext());
 
-        getCourse(id, user.getId()).observe(this, this::displayCourse);
-    }
-
-    private MutableLiveData<Course> getCourse(String cid, @Nullable String uid) {
-        loadCourse(cid, uid);
-        return course;
-    }
-
-    private void loadCourse(String cid, @Nullable String uid) {
-        if (isLoading) return;
-        isLoading = true;
-        executor.execute(() -> {
-            try {
-                Log.d(TAG, "loadCourse: loading course");
-                Course c = db.getCourse(cid, uid);
-                Log.d(TAG, "loadCourse: course loaded\n" +
-                        c.getId() + "\n" +
-                        c.getName() + "\n" +
-                        c.getHoles().stream().map(
-                                h -> h.getId() + ", " + h.getScore()
-                        ).reduce(
-                                "[id, score]: ", (a, b) -> a + " | " + b
-                        )
-                );
-                course.postValue(c);
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
-            isLoading = false;
-        });
+        if (hid != null && !hid.isBlank()) {
+            isNew = false;
+            course = new Course(id, name, image, hid, db.getHoles(hid));
+        } else {
+            isNew = true;
+            course = new Course(id, name, image, Generate.holes(holeCount, 72));
+        }
+        displayCourse(course);
     }
 
     @SuppressLint("DefaultLocale")
@@ -120,7 +100,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
 
         RecyclerView courseHoles = findViewById(R.id.courseDetailsHolesRV);
         courseHoles.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        courseHoles.setAdapter(new HoleAdapter(course.getHoles()));
+        courseHoles.setAdapter(new HoleAdapter(course.getHoles(), this));
 
         int score = course.getHoles().stream().map(Hole::getScore).reduce(0, Integer::sum);
         TextView courseScore = findViewById(R.id.courseDetailsScoreText);
@@ -129,16 +109,14 @@ public class CourseDetailsActivity extends AppCompatActivity {
         int handicap = 72 - score;
         TextView courseHandicap = findViewById(R.id.courseDetailsHandicapText);
         courseHandicap.setText(String.valueOf(handicap));
-        // TODO: idk cara itungnya
-
 
         Button courseSave = findViewById(R.id.courseDetailsSaveBtn);
         courseSave.setOnClickListener(v -> handleSave(course.getId()));
     }
 
     private void handleSave(String cid) {
-        if (isLoading) {
-            Log.d(TAG, "handleSave: is loading");
+        if (course == null) {
+            Log.d(TAG, "handleSave: course null");
             return;
         }
         RecyclerView courseHoles = findViewById(R.id.courseDetailsHolesRV);
@@ -148,9 +126,12 @@ public class CourseDetailsActivity extends AppCompatActivity {
             return;
         }
         List<Hole> holes = adapter.getHoles();
-        Log.d(TAG, "handleSave: saving holes " + holes);
-        db.saveHoles(holes, cid, user.getId());
-        db.saveHistory(cid, user.getId());
+        Log.d(TAG, "handleSave: saving holes " + holes + " with hid " + course.getHid());
+        String hid = db.saveHistory(cid, user.getId(), course.getHid());
+        db.saveHoles(holes, hid, isNew);
+        course.setHid(hid);
+        isNew = false;
+        Toast.makeText(this, "Course saved", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -173,10 +154,5 @@ public class CourseDetailsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (!executor.isShutdown() || !executor.isTerminated()) {
-            executor.shutdown();
-        }
-        db.close();
-        course = null;
     }
 }

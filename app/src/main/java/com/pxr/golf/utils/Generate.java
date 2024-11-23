@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Generate {
+    private static final Random random = new Random();
+
     public static List<Course> courses(int n) {
         List<Course> courses = new ArrayList<>();
         for (int i = 0; i < n; i++) {
@@ -20,7 +22,7 @@ public class Generate {
     public static Course course(String id) {
         return new Course(id, "Course " + id, R.drawable._0, holes(18, 72));
     }
-    
+
     public static List<Hole> holes(int n, int totalPar) {
         List<Integer> pars = pars(n, totalPar);
         List<Hole> holes = new ArrayList<>();
@@ -31,42 +33,21 @@ public class Generate {
     }
 
     public static List<Integer> pars(int n, int maxTotalPar) {
-        Random random = new Random();
-        int[] pars = {4, 3, 5};
-        double[] probabilities = {0.6, 0.2, 0.2};
-
         List<Integer> parList = new ArrayList<>();
-        int totalPar = 0;
+        int remainingPar = maxTotalPar;
 
-        while (parList.size() < n) {
-            double rand = random.nextDouble();
-            int selectedPar = 0;
-
-            for (int i = 0; i < probabilities.length; i++) {
-                if (rand < probabilities[i]) {
-                    selectedPar = pars[i];
-                    break;
-                }
-                rand -= probabilities[i];
-            }
-
-            if (totalPar + selectedPar <= maxTotalPar) {
-                parList.add(selectedPar);
-                totalPar += selectedPar;
-            }
+        for (int i = 0; i < n; i++) {
+            parList.add(4);
         }
+        remainingPar -= (4 * n);
 
-        while (totalPar > maxTotalPar) {
-            for (int i = 0; i < parList.size(); i++) {
-                if (parList.get(i) == 5) {
-                    parList.set(i, 4);
-                    totalPar -= 1;
-                    break;
-                } else if (parList.get(i) == 4) {
-                    parList.set(i, 3);
-                    totalPar -= 1;
-                    break;
-                }
+        if (remainingPar > 0) {
+            for (int i = 0; i < remainingPar && i < n / 3; i++) {
+                parList.set(i * 3, 5);
+            }
+        } else if (remainingPar < 0) {
+            for (int i = 0; i < Math.abs(remainingPar) && i < n / 3; i++) {
+                parList.set(i * 3 + 1, 3);
             }
         }
 
