@@ -200,6 +200,22 @@ public class DBManager {
         return courses;
     }
 
+    public String addCourse(String name, int image, int holeCount, String uid) {
+        if (name == null || uid == null || holeCount <= 0) return null;
+        Log.d(TAG, "addCourse: adding course for uid: " + uid + ", name: " + name + ", image: " + image + ", holeCount: " + holeCount);
+
+        open();
+        ContentValues values = new ContentValues();
+        values.put(DBHelper.COURSE_NAME, name);
+        values.put(DBHelper.COURSE_IMAGE, image);
+        values.put(DBHelper.COURSE_HOLE_COUNT, holeCount);
+        values.put(DBHelper.COURSE_USER_ID, uid);
+        long cid = db.insert(DBHelper.TABLE_COURSE, null, values);
+        close();
+
+        return String.valueOf(cid);
+    }
+
     public List<Course> getHistories(String uid) {
         if (uid == null) return null;
 
@@ -250,11 +266,8 @@ public class DBManager {
             values.put(DBHelper.HISTORY_COURSE_ID, cid);
             values.put(DBHelper.HISTORY_USER_ID, uid);
             values.put(DBHelper.HISTORY_DATE, String.valueOf(System.currentTimeMillis()));
-            hid = String.valueOf(db.insert(
-                    DBHelper.TABLE_HISTORY,
-                    null,
-                    values
-            ));
+            long newHid = db.insert(DBHelper.TABLE_HISTORY, null, values);
+            hid = String.valueOf(newHid);
             Log.d(TAG, "saveHistory: new hid: " + hid);
         } else {
             Log.d(TAG, "addHistory: existing history");

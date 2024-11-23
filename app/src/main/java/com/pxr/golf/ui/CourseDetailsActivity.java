@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -130,6 +131,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
         db.saveHoles(holes, hid, isNew);
         course.setHid(hid);
         isNew = false;
+        Toast.makeText(this, "Course saved", Toast.LENGTH_SHORT).show();
     }
 
     @Override
