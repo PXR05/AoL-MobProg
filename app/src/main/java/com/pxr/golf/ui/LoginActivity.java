@@ -3,6 +3,8 @@ package com.pxr.golf.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -22,6 +24,26 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         View root = findViewById(R.id.main);
         Setup.all(this, root);
+
+        EditText loginEmailET = findViewById(R.id.loginEmailET);
+        EditText loginpwET = findViewById(R.id.loginpwET);
+        Button loginBTN = findViewById(R.id.loginBTN);
+
+        loginBTN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = loginEmailET.getText().toString();
+                String password = loginpwET.getText().toString();
+
+                if (email.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                } else {
+                    signIn(email, password);
+                }
+            }
+        });
+
+
     }
 
     private void signIn(String email, String password) {

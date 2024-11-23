@@ -49,7 +49,7 @@
             tools:visibility="visible" />
 
         <EditText
-            android:id="@+id/emailText"
+            android:id="@+id/loginEmailET"
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:layout_marginTop="20dp"
@@ -62,7 +62,7 @@
             android:textSize="10dp" />
 
         <EditText
-            android:id="@+id/registerText"
+            android:id="@+id/loginpwET"
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:layout_marginTop="20dp"

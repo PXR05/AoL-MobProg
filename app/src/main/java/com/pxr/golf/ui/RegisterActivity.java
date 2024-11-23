@@ -3,6 +3,8 @@ package com.pxr.golf.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -23,6 +25,30 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         View root = findViewById(R.id.main);
         Setup.all(this, root);
+
+        EditText usernameET = findViewById(R.id.usernameET);
+        EditText emailET = findViewById(R.id.emailET);
+        EditText passwordET = findViewById(R.id.passwordET);
+        EditText confirmpwET = findViewById(R.id.confirmpwET);
+        Button submitBTN = findViewById(R.id.submitBTN);
+
+        submitBTN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String username = usernameET.getText().toString();
+                String email = emailET.getText().toString();
+                String password = passwordET.getText().toString();
+                String confirmPassword = confirmpwET.getText().toString();
+
+                if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                    Toast.makeText(RegisterActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                } else if (!password.equals(confirmPassword)) {
+                    Toast.makeText(RegisterActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+                } else {
+                    signUp(username, email, password);
+                }
+            }
+        });
     }
 
     private void signUp(String name, String email, String password) {
@@ -31,6 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (user == null) {
             Toast.makeText(this, "Email already exists", Toast.LENGTH_SHORT).show();
             return;
+
         }
         Auth.saveUser(this, user);
         Intent intent = new Intent(this, MainActivity.class);
