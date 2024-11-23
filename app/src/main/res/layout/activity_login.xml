@@ -1,10 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
     tools:context=".ui.LoginActivity">
+
+    <ImageView
+        android:id="@+id/loginLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="160dp"
+        android:layout_marginBottom="47dp"
+        app:layout_constraintBottom_toTopOf="@+id/loginLl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo" />
+
+    <LinearLayout
+        android:id="@+id/loginLl"
+        android:layout_width="338dp"
+        android:layout_height="349dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="45dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/loginLogo2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.431"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginLogo">
+
+        <TextView
+            android:id="@+id/LoginTV"
+            android:layout_width="208dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="0dp"
+            android:text="Login"
+            android:textColor="@color/white"
+            android:textColorHint="@color/primary"
+            android:textSize="30dp"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
+        <EditText
+            android:id="@+id/emailText"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/border"
+            android:backgroundTintMode="add"
+            android:ems="10"
+            android:hint="INPUT YOUR EMAIL HERE..."
+            android:inputType="text"
+            android:textColorHint="@color/white"
+            android:textSize="10dp" />
+
+        <EditText
+            android:id="@+id/registerText"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:hint="INPUT YOUR PASSWORD HERE..."
+            android:inputType="text"
+            android:textColorHint="@color/white"
+            android:textSize="10dp" />
+
+        <Button
+            android:id="@+id/loginBTN"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/button_gradient"
+            android:backgroundTintMode="src_in"
+            android:drawableRight="@drawable/_0"
+            android:text="LOGIN"
+            app:icon="@drawable/button_gradient" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/loginLogo2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="319dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginLl"
+        app:srcCompat="@drawable/tagline" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
