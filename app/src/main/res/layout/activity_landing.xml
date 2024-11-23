@@ -37,7 +37,8 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="24dp"
             android:background="@drawable/button_gradient"
-            android:text="SIGN IN WITH EMAIL" />
+            android:text="SIGN IN WITH EMAIL"
+            android:textColor="@color/white" />
 
         <LinearLayout
             style="?android:attr/buttonBarStyle"
@@ -86,8 +87,8 @@
     </LinearLayout>
 
     <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:src="@drawable/tagline"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

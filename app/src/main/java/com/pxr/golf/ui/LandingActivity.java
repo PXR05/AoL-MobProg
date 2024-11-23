@@ -45,14 +45,12 @@ public class LandingActivity extends AppCompatActivity {
         registerBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
-            finish();
         });
 
         Button loginBtn = findViewById(R.id.landingLoginBtn);
         loginBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
-            finish();
         });
     }
 }

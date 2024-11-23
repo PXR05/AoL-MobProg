@@ -29,17 +29,14 @@ public class LoginActivity extends AppCompatActivity {
         EditText loginpwET = findViewById(R.id.loginpwET);
         Button loginBTN = findViewById(R.id.loginBTN);
 
-        loginBTN.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = loginEmailET.getText().toString();
-                String password = loginpwET.getText().toString();
+        loginBTN.setOnClickListener(e -> {
+            String email = loginEmailET.getText().toString();
+            String password = loginpwET.getText().toString();
 
-                if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(LoginActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                } else {
-                    signIn(email, password);
-                }
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            } else {
+                signIn(email, password);
             }
         });
 

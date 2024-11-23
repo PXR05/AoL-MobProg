@@ -29,24 +29,21 @@ public class RegisterActivity extends AppCompatActivity {
         EditText usernameET = findViewById(R.id.usernameET);
         EditText emailET = findViewById(R.id.emailET);
         EditText passwordET = findViewById(R.id.passwordET);
-        EditText confirmpwET = findViewById(R.id.confirmpwET);
+        EditText confirmET = findViewById(R.id.confirmET);
         Button submitBTN = findViewById(R.id.submitBTN);
 
-        submitBTN.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = usernameET.getText().toString();
-                String email = emailET.getText().toString();
-                String password = passwordET.getText().toString();
-                String confirmPassword = confirmpwET.getText().toString();
+        submitBTN.setOnClickListener(e -> {
+            String username = usernameET.getText().toString();
+            String email = emailET.getText().toString();
+            String password = passwordET.getText().toString();
+            String confirmPassword = confirmET.getText().toString();
 
-                if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                    Toast.makeText(RegisterActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                } else if (!password.equals(confirmPassword)) {
-                    Toast.makeText(RegisterActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                } else {
-                    signUp(username, email, password);
-                }
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                Toast.makeText(RegisterActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            } else if (!password.equals(confirmPassword)) {
+                Toast.makeText(RegisterActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            } else {
+                signUp(username, email, password);
             }
         });
     }
