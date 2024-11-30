@@ -1,4 +1,4 @@
-package com.pxr.golf.ui.home;
+package com.pxr.golf.ui.main;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,9 +22,11 @@ import com.pxr.golf.adapters.CourseAdapter;
 import com.pxr.golf.adapters.PostAdapter;
 import com.pxr.golf.databinding.FragmentHomeBinding;
 import com.pxr.golf.db.DBManager;
+import com.pxr.golf.interfaces.PostInterface;
 import com.pxr.golf.models.Course;
 import com.pxr.golf.models.Post;
 import com.pxr.golf.models.User;
+import com.pxr.golf.services.APIClient;
 import com.pxr.golf.utils.Auth;
 
 import java.util.ArrayList;
@@ -34,6 +36,10 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
@@ -41,10 +47,6 @@ public class HomeFragment extends Fragment {
     private List<Course> courses;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel = new ViewModelProvider(this,
-                new HomeViewModelFactory(requireActivity().getApplication()))
-                .get(HomeViewModel.class);
-
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
@@ -60,7 +62,7 @@ public class HomeFragment extends Fragment {
         courses = db.getCourses(user.getId());
         displayCourses(courses);
 
-        homeViewModel.getPosts().observe(getViewLifecycleOwner(), this::displayPosts);
+        loadPosts();
 
         EditText courseSearchInput = binding.homeCourseSearchInput;
         courseSearchInput.addTextChangedListener(new TextWatcher() {
@@ -87,7 +89,33 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
-    private void displayPosts(List<Post> posts) {
+    private void loadPosts() {
+        PostInterface pi = APIClient.getClient().create(PostInterface.class);
+        Call<Post> call = pi.getPosts("sensegolf");
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if (response.isSuccessful()) {
+                    Post post = response.body();
+                    if (post == null) {
+                        Toast.makeText(getContext(), "API Rate Limit", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    displayPosts(post.getData().getUser().getEdgeOwnerToTimelineMedia().getEdges());
+                } else {
+                    Log.e(TAG, "onResponse: " + response.message());
+                    Toast.makeText(getContext(), "API Rate Limit", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+                Toast.makeText(getContext(), "Failed to fetch posts", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void displayPosts(List<Post.Edge> posts) {
         if (posts == null) return;
         RecyclerView postRV = binding.homeProductRV;
         postRV.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));

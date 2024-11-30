@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pxr.golf.R;
 import com.pxr.golf.db.DBManager;
 import com.pxr.golf.models.User;
+import com.pxr.golf.ui.main.MainActivity;
 import com.pxr.golf.utils.Auth;
 import com.pxr.golf.utils.Setup;
 

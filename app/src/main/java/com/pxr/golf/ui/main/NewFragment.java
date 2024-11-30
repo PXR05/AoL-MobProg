@@ -1,4 +1,4 @@
-package com.pxr.golf.ui.newCourse;
+package com.pxr.golf.ui.main;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

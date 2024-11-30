@@ -7,16 +7,16 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.pxr.golf.ui.home.HomeFragment"
+        android:name="com.pxr.golf.ui.main.HomeFragment"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_new"
-        android:name="com.pxr.golf.ui.newCourse.NewFragment"
+        android:name="com.pxr.golf.ui.main.NewFragment"
         tools:layout="@layout/fragment_new" />
 
     <fragment
         android:id="@+id/navigation_analytics"
-        android:name="com.pxr.golf.ui.analytics.AnalyticsFragment"
+        android:name="com.pxr.golf.ui.main.AnalyticsFragment"
         tools:layout="@layout/fragment_analytics" />
 </navigation>

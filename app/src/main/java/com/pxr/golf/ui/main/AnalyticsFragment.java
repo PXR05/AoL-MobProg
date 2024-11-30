@@ -1,4 +1,4 @@
-package com.pxr.golf.ui.analytics;
+package com.pxr.golf.ui.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

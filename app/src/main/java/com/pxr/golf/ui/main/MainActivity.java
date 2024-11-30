@@ -1,4 +1,4 @@
-package com.pxr.golf.ui;
+package com.pxr.golf.ui.main;
 
 import android.os.Bundle;
 

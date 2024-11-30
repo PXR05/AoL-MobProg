@@ -23,10 +23,10 @@ import java.net.URL;
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
-    private final List<Post> posts;
+    private final List<Post.Edge> posts;
     private Context ctx;
 
-    public PostAdapter(List<Post> posts) {
+    public PostAdapter(List<Post.Edge> posts) {
         this.posts = posts;
     }
 
@@ -41,12 +41,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-        Post post = posts.get(position);
+        Post.Node node = posts.get(position).getNode();
         holder.postImage.setImageResource(R.drawable.logo);
-        
+
         new Thread(() -> {
             try {
-                InputStream stream = (InputStream) new URL(post.getImage()).getContent();
+                InputStream stream = (InputStream) new URL(node.getDisplayUrl()).getContent();
                 Drawable drawable = Drawable.createFromStream(stream, "src name");
                 holder.itemView.post(() -> {
                     holder.postImage.setImageDrawable(drawable);
@@ -57,7 +57,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }).start();
 
         holder.postContainer.setOnClickListener(e -> {
-            Intent redirect = new Intent(Intent.ACTION_VIEW, Uri.parse(post.getUrl()));
+            Intent redirect = new Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/p/" + node.getShortcode()));
             ctx.startActivity(redirect);
         });
     }
