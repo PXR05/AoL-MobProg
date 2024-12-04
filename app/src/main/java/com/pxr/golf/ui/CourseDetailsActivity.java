@@ -83,7 +83,7 @@ public class CourseDetailsActivity extends AppCompatActivity {
     private void displayCourse(Course course) {
         if (course == null) return;
 
-        ImageView courseImage = findViewById(R.id.courseDetailsImage);
+        ImageView courseImage = findViewById(R.id.newCourseImage);
         courseImage.setImageResource(course.getImage());
 
         TextView courseName = findViewById(R.id.courseDetailsNameText);

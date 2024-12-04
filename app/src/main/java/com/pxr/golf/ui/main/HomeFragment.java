@@ -110,7 +110,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(Call<Post> call, Throwable t) {
-                Toast.makeText(getContext(), "Failed to fetch posts", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), "Failed to fetch posts", Toast.LENGTH_SHORT).show();
             }
         });
     }
