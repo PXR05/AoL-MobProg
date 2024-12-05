@@ -8,20 +8,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.pxr.golf.R;
-
 import com.pxr.golf.databinding.FragmentNewBinding;
 import com.pxr.golf.db.DBManager;
-import com.pxr.golf.models.Course;
 import com.pxr.golf.models.User;
 import com.pxr.golf.ui.CourseDetailsActivity;
-import com.pxr.golf.ui.LoginActivity;
 import com.pxr.golf.utils.Auth;
 
 public class NewFragment extends Fragment {
@@ -39,9 +35,11 @@ public class NewFragment extends Fragment {
         newCourse.setOnClickListener(v -> {
             String courseName = newCourseName.getText().toString();
             String totalHole = newTotalHole.getText().toString();
-            if(courseName.isEmpty() || totalHole.isEmpty()){
+            if (courseName.isEmpty() || totalHole.isEmpty()) {
                 Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
-            }else{
+            } else if (Integer.parseInt(totalHole) != 18 && Integer.parseInt(totalHole) != 9) {
+                Toast.makeText(getContext(), "Total hole must be 18 or 9", Toast.LENGTH_SHORT).show();
+            } else {
                 User user = Auth.loadUser(root.getContext());
                 createCourse(courseName, R.drawable.course1, Integer.parseInt(totalHole), user.getId());
             }
@@ -50,7 +48,7 @@ public class NewFragment extends Fragment {
         return root;
     }
 
-    private void createCourse(String name, int image, int holeCount, String uid){
+    private void createCourse(String name, int image, int holeCount, String uid) {
         Log.d("NF", "createCourse: " + name + ", " + holeCount);
         DBManager db = new DBManager(getContext());
         String course = db.addCourse(name, image, holeCount, uid);
