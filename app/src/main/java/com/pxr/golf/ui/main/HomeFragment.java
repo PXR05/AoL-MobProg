@@ -45,10 +45,12 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
     private List<Course> courses;
+    private View root;
+    private RecyclerView postRV;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        root = binding.getRoot();
 
         DBManager db = new DBManager(root.getContext());
 
@@ -62,6 +64,7 @@ public class HomeFragment extends Fragment {
         courses = db.getCourses(user.getId());
         displayCourses(courses);
 
+        postRV = binding.postsRV;
         loadPosts();
 
         EditText courseSearchInput = binding.homeCourseSearchInput;
@@ -92,19 +95,19 @@ public class HomeFragment extends Fragment {
     private void loadPosts() {
         PostInterface pi = APIClient.getClient().create(PostInterface.class);
         Call<Post> call = pi.getPosts("sensegolf");
-        call.enqueue(new Callback<Post>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Post> call, Response<Post> response) {
                 if (response.isSuccessful()) {
                     Post post = response.body();
                     if (post == null) {
-                        Toast.makeText(getContext(), "API Rate Limit", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(root.getContext(), "API Rate Limit", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     displayPosts(post.getData().getUser().getEdgeOwnerToTimelineMedia().getEdges());
                 } else {
                     Log.e(TAG, "onResponse: " + response.message());
-                    Toast.makeText(getContext(), "API Rate Limit", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(root.getContext(), "API Rate Limit", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -117,9 +120,13 @@ public class HomeFragment extends Fragment {
 
     private void displayPosts(List<Post.Edge> posts) {
         if (posts == null) return;
-        RecyclerView postRV = binding.homeProductRV;
-        postRV.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        postRV.setAdapter(new PostAdapter(posts));
+        if (postRV == null) {
+            Toast.makeText(getContext(), "Error binding", Toast.LENGTH_SHORT).show();
+        } else {
+            postRV.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            postRV.setAdapter(new PostAdapter(posts));
+        }
+
     }
 
     private void displayCourses(List<Course> courses) {
